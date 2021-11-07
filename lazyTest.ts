@@ -82,7 +82,8 @@ const filter = <T>(fn: (x: T) => boolean, lazyList: LazyList<T>): LazyList<T> =>
   }
 }
 
-const accumulatedFilter = (
+// source: https://en.wikipedia.org/wiki/Sieve_of_Eratosthenes
+const EratosthenesSieve = (
   fn: (head: number) => (x: number) => boolean,
   lazyList: LazyList<number>
 ): LazyList<number> => {
@@ -92,12 +93,12 @@ const accumulatedFilter = (
     const head = list.head();
     return {
       head: () => head,
-      tail: accumulatedFilter(fn, filter(fn(head), list.tail))
+      tail: EratosthenesSieve(fn, filter(fn(head), list.tail))
     }
   }
 }
 
-const primes = accumulatedFilter(head => x => (x % head !== 0), infiniteList(() => 2));
+const primes = EratosthenesSieve(head => x => (x % head !== 0), infiniteList(() => 2));
 
 printLazyList(
   take(

@@ -100,9 +100,20 @@ const EratosthenesSieve = (
 
 const primes = EratosthenesSieve(head => x => (x % head !== 0), infiniteList(() => 2));
 
+const fibonacci = (lazyLastLast = () => 0, lazyLast = () => 1): LazyList<number> => {
+  return () => {
+    const last = lazyLast();
+    const lastLast = lazyLastLast();
+    return {
+      head: () => last + lastLast,
+      tail: fibonacci(() => last, () => last + lastLast)
+    };
+  };
+}
+
 printLazyList(
   take(
     () => 100,
-    primes
+    fibonacci()
   )
 );

@@ -83,10 +83,10 @@ const filter = <T>(fn: (x: T) => boolean, lazyList: LazyList<T>): LazyList<T> =>
 }
 
 // source: https://en.wikipedia.org/wiki/Sieve_of_Eratosthenes
-const EratosthenesSieve = (
-  fn: (head: number) => (x: number) => boolean,
-  lazyList: LazyList<number>
-): LazyList<number> => {
+const EratosthenesSieve = <T>(
+  fn: (head: T) => (x: T) => boolean,
+  lazyList: LazyList<T>
+): LazyList<T> => {
   return () => {
     const list = lazyList();
     if (!!!list) return null;
@@ -98,22 +98,33 @@ const EratosthenesSieve = (
   }
 }
 
-const primes = EratosthenesSieve(head => x => (x % head !== 0), infiniteList(() => 2));
+const primes = EratosthenesSieve<number>(head => x => (x % head !== 0), infiniteList(() => 2));
 
-const fibonacci = (lazyLastLast = () => 0, lazyLast = () => 1): LazyList<number> => {
+const fibonacci = (lazyLastLast = () => BigInt(0), lazyLast = () => BigInt(1)): LazyList<bigint> => {
   return () => {
     const last = lazyLast();
     const lastLast = lazyLastLast();
     return {
-      head: () => last + lastLast,
-      tail: fibonacci(() => last, () => last + lastLast)
+      head: () => BigInt(last + lastLast),
+      tail: fibonacci(() => BigInt(last), () => BigInt(last + lastLast))
     };
   };
 }
 
+const nItemLazyListFibonacci = (lazyList: LazyList<bigint>, n: number) => {
+  if(n === 1 || n === 2) return 1n;
+
+  let list = lazyList();
+  for(let i = 1; i < (n-1); i++) {
+    list = list.tail();
+  }
+
+  return BigInt(list.head());
+}
+
 printLazyList(
   take(
-    () => 100,
-    fibonacci()
+    () => 22,
+    EratosthenesSieve<bigint>(head => x => (x % head !== 0n), fibonacci(() => BigInt(2), () => BigInt(3)))
   )
 );
